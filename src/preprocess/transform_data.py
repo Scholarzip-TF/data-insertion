@@ -26,7 +26,7 @@ def convert_date_columns(df: pd.DataFrame, date_cols: List[str]) -> pd.DataFrame
                 df[col],
                 format="%m/%d/%y",  # 11/14/23 → 2023-11-14
                 errors="coerce"
-            )  # datetime 객체 (ISO 형식의 YYYY-MM-DD HH:MM:SS)
+            ).apply(lambda x: x.date() if pd.notna(x) else None)  # NaT -> None 변환
     return df
 
 def convert_numeric_columns(df: pd.DataFrame, numeric_cols: List[str]) -> pd.DataFrame:
@@ -54,6 +54,21 @@ def clean_missing_values(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def convert_scholarship_type(df: pd.DataFrame, TYPE_MAP) -> pd.DataFrame:
+    """
+    장학금 유형을 한글에서 영문으로 변환합니다.
+    """
+    def map_type(original: str) -> str:
+        if not isinstance(original, str):
+            return "TUITION"  # 기본값
+        text = original.strip()
+        # 딕셔너리로 매핑 (기본값 TUITION)
+        return TYPE_MAP.get(text, "TUITION")
+
+    # apply 함수로 'type' 컬럼 전부 변환
+    df["type"] = df["type"].apply(map_type)
+
+    return df  
 
 def dataframe_to_records(df: pd.DataFrame) -> List[Dict]:
     """

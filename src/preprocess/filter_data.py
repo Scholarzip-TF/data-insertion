@@ -11,7 +11,7 @@ def filter_scholarships(df: pd.DataFrame, EXCLUDED_COLUMNS, EXCLUDED_COLUMNS_GRA
     # all(...)을 사용해 '모두 "제한없음"인지' 체크.
     
     # df.apply()를 이용한 방법
-    def is_valid_row(row):
+    def has_no_other_filters(row):
         # 1) '제한없음' 문자 칼럼 체크
         for col in EXCLUDED_COLUMNS:
             # 해당 col이 실제 df에 없을 수도 있으니 체크
@@ -27,7 +27,12 @@ def filter_scholarships(df: pd.DataFrame, EXCLUDED_COLUMNS, EXCLUDED_COLUMNS_GRA
                 if grade_val != "0.0":
                     return False
         return True
+    
+    def is_not_interest(row):
+        if row["지원유형"] == "이자지원":
+            return False
+        return True
 
     # 유효한 row만 필터링
-    filtered_df = df[df.apply(is_valid_row, axis=1)]
+    filtered_df = df[df.apply(lambda row: has_no_other_filters(row) and is_not_interest(row), axis=1)]
     return filtered_df

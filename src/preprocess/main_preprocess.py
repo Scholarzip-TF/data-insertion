@@ -1,6 +1,6 @@
-from load_data import load_csv, DATA_DIR
-from transform_data import (rename_and_filter_columns, convert_date_columns, clean_missing_values, convert_numeric_columns, dataframe_to_records)
-from filter_data import filter_scholarships
+from .load_data import load_csv, DATA_DIR
+from .transform_data import (rename_and_filter_columns, convert_date_columns, clean_missing_values, convert_numeric_columns, dataframe_to_records, convert_scholarship_type)
+from .filter_data import filter_scholarships
 import pprint
 
 EXCLUDED_COLUMNS = [
@@ -21,6 +21,15 @@ RENAME_MAP = {
     "비고": "note",
     "소득기준": "incomeLevel",
     "학교": "university",
+    "주소 조건(대분류)": "majorName",
+    "주소 조건(세부)": "minorName"
+}
+
+TYPE_MAP = {
+    "생활비 - 타 장학 중복 O": "LIVING_DUPLICATE",
+    "생활비 - 타 장학 중복 X": "LIVING_NO_DUPLICATE",
+    "이자지원": "INTEREST",
+    "등록금": "TUITION"
 }
 
 def preprocess_scholarships(csv_path: str):
@@ -42,7 +51,9 @@ def preprocess_scholarships(csv_path: str):
     df = convert_date_columns(df, ["applicationStartDate", "applicationEndDate"])
     # 3) 숫자 컬럼 변환
     df = convert_numeric_columns(df, ["incomeLevel"])
-    # 4) 결측값 처리 (예: note가 NaN이면 빈 문자열로)
+    # 4) 장학유형 변환
+    df = convert_scholarship_type(df, TYPE_MAP)
+    # 5) 결측값 처리 (예: note가 NaN이면 빈 문자열로)
     df = clean_missing_values(df)
 
     # List[Dict] 형태로 변환
@@ -54,9 +65,9 @@ if __name__ == "__main__":
     csv_path = "scholarships.csv"
     result_df, result_list = preprocess_scholarships(csv_path)
 
-     # 1) 확인: Print first 15 records
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(result_list[:15])
+    # # 결과 확인
+    # pp = pprint.PrettyPrinter(indent=4)
+    # pp.pprint(result_list[:15])
 
-    result_df.to_csv(f"{DATA_DIR}/scholarships_preprocessed.csv", index=False, encoding="utf-8-sig")
-    print(f"전처리 후 총 {len(result_list)}건 저장 완료.")
+    # result_df.to_csv(f"{DATA_DIR}/scholarships_preprocessed.csv", index=False, encoding="utf-8-sig")
+    # print(f"전처리 후 총 {len(result_list)}건 저장 완료.")
