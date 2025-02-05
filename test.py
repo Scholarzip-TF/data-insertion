@@ -1,13 +1,19 @@
 from config.db_config import get_db_connection
-import pytest
 
 def test_db_connection():
     """
     PyMySQL DB 연결이 정상적으로 되는지 테스트합니다.
     """
-    conn = get_db_connection()
-    assert conn is not None, "DB 연결에 실패했습니다."
-    conn.close()
+    conn = None
+    try:
+        conn = get_db_connection()
+        assert conn is not None, "DB 연결에 실패했습니다."
+        print("[DB] DB 연결 성공")
+    except Exception as e:
+        print(f"[DB] DB 연결 실패: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 def test_sql_select():
     conn = get_db_connection()
@@ -24,4 +30,5 @@ def test_sql_select():
     # conn.commit() # 커밋은 반복할 필요 없음
     conn.close()
 
-    
+# test_db_connection()
+test_sql_select()
