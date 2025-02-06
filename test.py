@@ -1,7 +1,6 @@
 from config.db_config import get_db_connection
 from datetime import date
 from src.data_insert import insert_full_scholarship  # 통합 함수 import
-from dotenv import load_dotenv
 
 def test_db_connection():
     """
